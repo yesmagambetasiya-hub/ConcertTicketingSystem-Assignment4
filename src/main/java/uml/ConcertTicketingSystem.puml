@@ -1,0 +1,104 @@
+
+@startuml
+title Concert Ticketing System - UML Class Diagram
+
+skinparam classAttributeIconSize 0
+left to right direction
+
+package "Subsystem A - Reservation" {
+    class SeatReservation
+    enum ReservationStatus {
+        AVAILABLE
+        RESERVED
+        CANCELLED
+    }
+    class SeatValidator
+    class ReservationRepository
+    class ReservationService
+    class DynamicPricingEngine
+
+    SeatReservation --> ReservationStatus
+    ReservationService --> SeatReservation
+    ReservationService --> SeatValidator
+    ReservationService --> ReservationRepository
+}
+
+package "Subsystem B - Ticket Processing" {
+    class Ticket
+    enum TicketStatus {
+        PENDING
+        PRINTED
+        CANCELLED
+    }
+    class FraudChecker
+    class TicketPrinter
+    class TicketRepository
+    class TicketProcessingService
+
+    Ticket --> TicketStatus
+    TicketProcessingService --> FraudChecker
+    TicketProcessingService --> TicketPrinter
+    TicketProcessingService --> TicketRepository
+    TicketProcessingService --> Ticket
+}
+
+package "Subsystem C - Finalization" {
+    class FinalizationRecord
+    enum FinalizationStatus {
+        PENDING
+        APPROVED
+        REFUNDED
+    }
+    class AccessControlGate
+    class RefundService
+    class FinalizationRepository
+    class FinalizationService
+
+    FinalizationRecord --> FinalizationStatus
+    FinalizationService --> AccessControlGate
+    FinalizationService --> RefundService
+    FinalizationService --> FinalizationRepository
+}
+
+package "Workflow" {
+    class WorkflowRecord
+    enum WorkflowStatus
+    class WorkflowRepository
+    class WorkflowRecoveryService
+
+    WorkflowRecord --> WorkflowStatus
+    WorkflowRepository --> WorkflowRecord
+    WorkflowRecoveryService --> WorkflowRepository
+}
+
+package "Facade Pattern" {
+    class ConcertBookingFacade {
+        +bookConcertTicket(ticketId, seatNumber)
+    }
+
+    class AdminFacade {
+        +inspectBooking(ticketId, seatNumber)
+        +compensateBooking(ticketId, seatNumber)
+    }
+}
+
+class Main
+
+Main --> ConcertBookingFacade
+Main --> AdminFacade
+Main --> WorkflowRecoveryService
+
+ConcertBookingFacade --> ReservationService
+ConcertBookingFacade --> TicketProcessingService
+ConcertBookingFacade --> FinalizationService
+ConcertBookingFacade --> WorkflowRepository
+
+AdminFacade --> ReservationService
+AdminFacade --> TicketProcessingService
+AdminFacade --> FinalizationService
+
+WorkflowRecoveryService --> ReservationService
+WorkflowRecoveryService --> TicketProcessingService
+WorkflowRecoveryService --> FinalizationService
+
+@enduml

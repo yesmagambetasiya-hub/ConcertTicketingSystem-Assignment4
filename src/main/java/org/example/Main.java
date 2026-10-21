@@ -71,9 +71,8 @@ public class Main {
         // Recover incomplete bookings after restart
         recoveryService.recoverIncompleteBookings();
 
-        // Booking demonstration
-        String ticketId = "TICKET-501";
-        String seatNumber = "E5";
+        String ticketId = "TICKET-9002";
+        String seatNumber = "Z9002";
 
         try {
             bookingFacade.bookConcertTicket(
